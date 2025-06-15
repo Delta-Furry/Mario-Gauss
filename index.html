@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resolución por Método de Gauss</title>
+  <style>
+    body {
+      background-color: #eef2f3;
+      color: #222;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+    h1, h2 {
+      color: #0d3b66;
+    }
+    table {
+      border-collapse: collapse;
+      margin: 10px 0;
+      background: #ffffff;
+    }
+    td, th {
+      border: 1px solid #ccc;
+      padding: 5px 10px;
+      text-align: center;
+    }
+    input[type="text"] {
+      width: 150px;
+      padding: 4px;
+      background: #eeeeee;
+      color: #000;
+      border: 1px solid #aaa;
+    }
+    button {
+      margin-top: 15px;
+      background: #1e90ff;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+    #resultados {
+      margin-top: 20px;
+      background: #ffffff;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+  </style>
+</head>
+<body>
+  <h1>Método de Eliminación de Gauss</h1>
+  <p><b>Universidad Estatal del Valle de Ecatepec - Grupo 2741</b></p>
+  <p><b>Integrante:</b> Ramírez Pérez Mario Carlos</p>
+
+  <h2>Ingrese sus ecuaciones:</h2>
+  <table>
+    <tr>
+      <th>Ecuación</th>
+      <th>Forma (ej: 2x+3y+z)</th>
+      <th>Resultado</th>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td><input type="text" id="eq1" value="1x+1y+1z"></td>
+      <td><input type="text" id="res1" value="6"></td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td><input type="text" id="eq2" value="0x+2y+5z"></td>
+      <td><input type="text" id="res2" value="-4"></td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td><input type="text" id="eq3" value="2x+5y-1z"></td>
+      <td><input type="text" id="res3" value="27"></td>
+    </tr>
+  </table>
+
+  <button onclick="resolverGaussTexto()">Resolver sistema</button>
+
+  <div id="resultados"></div>
+
+  <script>
+    function parsearEcuacion(ecuacionStr) {
+      const coef = [0, 0, 0];
+      const partes = ecuacionStr.replace(/\s+/g, '').match(/([+-]?\d*)(x|y|z)/g);
+      if (!partes) return coef;
+      partes.forEach(parte => {
+        let valor = parte.match(/([+-]?\d*)(x|y|z)/);
+        let numero = valor[1] === '' || valor[1] === '+' ? 1 : valor[1] === '-' ? -1 : parseFloat(valor[1]);
+        let letra = valor[2];
+        if (letra === 'x') coef[0] = numero;
+        if (letra === 'y') coef[1] = numero;
+        if (letra === 'z') coef[2] = numero;
+      });
+      return coef;
+    }
+
+    function resolverGaussTexto() {
+      const eq1 = parsearEcuacion(document.getElementById('eq1').value);
+      const eq2 = parsearEcuacion(document.getElementById('eq2').value);
+      const eq3 = parsearEcuacion(document.getElementById('eq3').value);
+
+      const r1 = parseFloat(document.getElementById('res1').value);
+      const r2 = parseFloat(document.getElementById('res2').value);
+      const r3 = parseFloat(document.getElementById('res3').value);
+
+      const matriz = [
+        [...eq1, r1],
+        [...eq2, r2],
+        [...eq3, r3]
+      ];
+
+      for (let i = 0; i < 3; i++) {
+        let divisor = matriz[i][i];
+        for (let j = 0; j < 4; j++) {
+          matriz[i][j] = matriz[i][j] / divisor;
+        }
+        for (let k = 0; k < 3; k++) {
+          if (k !== i) {
+            let factor = matriz[k][i];
+            for (let j = 0; j < 4; j++) {
+              matriz[k][j] = matriz[k][j] - factor * matriz[i][j];
+            }
+          }
+        }
+      }
+
+      const x = matriz[0][3].toFixed(2);
+      const y = matriz[1][3].toFixed(2);
+      const z = matriz[2][3].toFixed(2);
+
+      document.getElementById("resultados").innerHTML = `
+        <h2>Resultado Final</h2>
+        <p><b>Ecuación 1:</b> ${eq1[0]}x + ${eq1[1]}y + ${eq1[2]}z = ${r1}<br>
+        <b>Ecuación 2:</b> ${eq2[0]}x + ${eq2[1]}y + ${eq2[2]}z = ${r2}<br>
+        <b>Ecuación 3:</b> ${eq3[0]}x + ${eq3[1]}y + ${eq3[2]}z = ${r3}</p>
+        <p><b>Soluciones:</b><br>x = ${x}<br>y = ${y}<br>z = ${z}</p>
+        <p><b>Verificación:</b><br>
+        ${eq1[0]}(${x}) + ${eq1[1]}(${y}) + ${eq1[2]}(${z}) = ${eq1[0]*x + eq1[1]*y + eq1[2]*z}<br>
+        ${eq2[0]}(${x}) + ${eq2[1]}(${y}) + ${eq2[2]}(${z}) = ${eq2[0]*x + eq2[1]*y + eq2[2]*z}<br>
+        ${eq3[0]}(${x}) + ${eq3[1]}(${y}) + ${eq3[2]}(${z}) = ${eq3[0]*x + eq3[1]*y + eq3[2]*z}
+        </p>`;
+    }
+  </script>
+</body>
+</html>
